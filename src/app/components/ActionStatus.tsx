@@ -9,13 +9,13 @@ export function ActionStatus({ currentAction, actionType }: ActionStatusProps) {
   const getActionColor = () => {
     switch (actionType) {
       case 'player':
-        return 'bg-[#457B9D]';
+        return 'bg-[#6B7280]';
       case 'enemy':
-        return 'bg-[#E63946]';
+        return 'bg-[#FF6B35]';
       case 'system':
-        return 'bg-[#F72585]';
+        return 'bg-[#FF8C42]';
       default:
-        return 'bg-[#1D3557]';
+        return 'bg-[#374151]';
     }
   };
 
@@ -37,7 +37,7 @@ export function ActionStatus({ currentAction, actionType }: ActionStatusProps) {
       <AnimatePresence mode="wait">
         <motion.div
           key={currentAction}
-          className={`${getActionColor()} rounded-2xl p-8 shadow-2xl max-w-2xl w-full`}
+          className={`${getActionColor()} rounded-2xl p-8 shadow-2xl max-w-2xl w-full relative`}
           style={{
             border: '8px solid black',
             boxShadow: '12px 12px 0px rgba(0,0,0,0.8)',
@@ -47,14 +47,7 @@ export function ActionStatus({ currentAction, actionType }: ActionStatusProps) {
           exit={{ scale: 0, rotate: 10 }}
           transition={{ type: 'spring', stiffness: 300, damping: 20 }}
         >
-          {/* Checkered pattern top */}
-          <div className="absolute top-0 left-0 right-0 h-6 flex">
-            {Array.from({ length: 40 }).map((_, i) => (
-              <div key={i} className={`flex-1 ${i % 2 === 0 ? 'bg-black' : 'bg-white'}`} />
-            ))}
-          </div>
-
-          <div className="relative mt-4">
+          <div className="relative">
             {/* Icon Badge */}
             <motion.div
               className="absolute -left-4 -top-4 bg-white border-6 border-black rounded-full w-16 h-16 flex items-center justify-center text-3xl shadow-lg"
@@ -88,13 +81,6 @@ export function ActionStatus({ currentAction, actionType }: ActionStatusProps) {
               animate={{ scale: 1.5, opacity: 0 }}
               transition={{ duration: 1, repeat: Infinity, repeatDelay: 0.5 }}
             />
-          </div>
-
-          {/* Checkered pattern bottom */}
-          <div className="absolute bottom-0 left-0 right-0 h-6 flex">
-            {Array.from({ length: 40 }).map((_, i) => (
-              <div key={i} className={`flex-1 ${i % 2 === 0 ? 'bg-white' : 'bg-black'}`} />
-            ))}
           </div>
         </motion.div>
       </AnimatePresence>

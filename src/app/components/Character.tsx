@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Heart, Shield } from 'lucide-react';
+import { Heart, Shield, Swords } from 'lucide-react';
 
 // Import character images
 import playerAvatar from 'figma:asset/0aeea4921f1215c52fce980d72dfd5ac956ab8c8.png';
@@ -17,9 +17,10 @@ interface CharacterProps {
   isEnemy?: boolean;
   isActive?: boolean;
   isShielding?: boolean;
+  isAttacking?: boolean;
 }
 
-export function Character({ character, isEnemy = false, isActive = false, isShielding = false }: CharacterProps) {
+export function Character({ character, isEnemy = false, isActive = false, isShielding = false, isAttacking = false }: CharacterProps) {
   const hpPercentage = (character.hp / character.maxHp) * 100;
 
   return (
@@ -29,10 +30,14 @@ export function Character({ character, isEnemy = false, isActive = false, isShie
       animate={{ 
         scale: 1,
         rotate: isActive ? [0, -2, 2, -2, 2, 0] : 0,
+        x: isAttacking ? [0, -8, 6, -4, 8, -6, 4, -2, 0] : 0,
+        y: isAttacking ? [0, 4, -6, 2, -4, 6, -2, 4, 0] : 0,
       }}
       transition={{ 
         scale: { type: 'spring', stiffness: 200 },
-        rotate: { duration: 0.5, ease: 'easeInOut' }
+        rotate: { duration: 0.5, ease: 'easeInOut' },
+        x: { duration: 0.6, ease: 'linear' },
+        y: { duration: 0.6, ease: 'linear' }
       }}
     >
       {/* Shield Animation Overlay */}
@@ -43,10 +48,50 @@ export function Character({ character, isEnemy = false, isActive = false, isShie
           animate={{ scale: [0.5, 1.3, 1], opacity: [0, 1, 0] }}
           transition={{ duration: 0.6 }}
         >
-          <div className="bg-[#457B9D] rounded-full p-8 border-6 border-white shadow-2xl" style={{
-            boxShadow: '0 0 30px rgba(69, 123, 157, 0.8), 0 0 60px rgba(69, 123, 157, 0.4)',
+          <div className="bg-[#6B7280] rounded-full p-8 border-6 border-white shadow-2xl" style={{
+            boxShadow: '0 0 30px rgba(107, 114, 128, 0.8), 0 0 60px rgba(107, 114, 128, 0.4)',
           }}>
             <Shield className="w-24 h-24 text-white" strokeWidth={3} />
+          </div>
+        </motion.div>
+      )}
+
+      {/* Attack Animation Overlay */}
+      {isAttacking && (
+        <motion.div
+          className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
+          initial={{ scale: 0.3, opacity: 0, rotate: -45 }}
+          animate={{ 
+            scale: [0.3, 1.2, 1], 
+            opacity: [0, 1, 0],
+            rotate: [-45, 0, 45]
+          }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="relative">
+            <div className="bg-[#FF6B35] rounded-full p-8 border-6 border-white shadow-2xl" style={{
+              boxShadow: '0 0 30px rgba(255, 107, 53, 0.8), 0 0 60px rgba(255, 107, 53, 0.4)',
+            }}>
+              <Swords className="w-24 h-24 text-white" strokeWidth={3} />
+            </div>
+            {/* Comic-style impact lines */}
+            {[...Array(8)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute bg-white"
+                style={{
+                  width: '4px',
+                  height: '40px',
+                  top: '50%',
+                  left: '50%',
+                  transformOrigin: 'center',
+                  transform: `rotate(${i * 45}deg) translateY(-80px)`,
+                }}
+                initial={{ scaleY: 0, opacity: 0 }}
+                animate={{ scaleY: [0, 1.5, 0], opacity: [0, 1, 0] }}
+                transition={{ duration: 0.6, delay: i * 0.05 }}
+              />
+            ))}
           </div>
         </motion.div>
       )}
@@ -58,14 +103,14 @@ export function Character({ character, isEnemy = false, isActive = false, isShie
       }}>
         {/* HP Label with Heart */}
         <div className="flex items-center gap-1 mb-1">
-          <Heart className="w-4 h-4 fill-[#E63946] text-[#E63946]" />
+          <Heart className="w-4 h-4 fill-[#FF6B35] text-[#FF6B35]" />
           <span className="text-black font-black text-xs uppercase tracking-wide">HP</span>
           <span className="text-black font-bold text-xs ml-auto">{character.hp} / {character.maxHp}</span>
         </div>
         
         <div className="w-full h-4 bg-black rounded-md overflow-hidden border-2 border-black">
           <motion.div
-            className="h-full bg-[#E63946] relative overflow-hidden"
+            className="h-full bg-[#FF6B35] relative overflow-hidden"
             initial={{ width: '100%' }}
             animate={{ width: `${hpPercentage}%` }}
             transition={{ duration: 0.5 }}
@@ -87,6 +132,17 @@ export function Character({ character, isEnemy = false, isActive = false, isShie
                 y: [0, -10, 0],
                 rotate: [0, -5, 5, -5, 0],
               }
+            : isAttacking
+            ? {
+                filter: [
+                  'hue-rotate(0deg) saturate(100%)',
+                  'hue-rotate(90deg) saturate(200%)',
+                  'hue-rotate(0deg) saturate(100%)',
+                  'hue-rotate(-90deg) saturate(200%)',
+                  'hue-rotate(0deg) saturate(100%)',
+                ],
+                opacity: [1, 0.8, 1, 0.7, 1, 0.9, 1],
+              }
             : {}
         }
         transition={{
@@ -104,7 +160,7 @@ export function Character({ character, isEnemy = false, isActive = false, isShie
         {/* Active indicator */}
         {isActive && (
           <motion.div
-            className="absolute -top-2 -right-2 bg-[#F72585] border-4 border-black rounded-full w-12 h-12 flex items-center justify-center shadow-lg"
+            className="absolute -top-2 -right-2 bg-[#FF8C42] border-4 border-black rounded-full w-12 h-12 flex items-center justify-center shadow-lg"
             style={{
               boxShadow: '4px 4px 0px rgba(0,0,0,0.6)',
             }}
@@ -128,7 +184,7 @@ export function Character({ character, isEnemy = false, isActive = false, isShie
           animate={{ scale: 1 }}
           transition={{ type: 'spring', stiffness: 300 }}
         >
-          <div className="bg-[#457B9D] rounded-full p-1.5 border-2 border-black">
+          <div className="bg-[#6B7280] rounded-full p-1.5 border-2 border-black">
             <Shield className="w-4 h-4 text-white" />
           </div>
           <span className="text-black font-black text-base">Block: {character.block}</span>
